@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>PT Acopiara - Partido dos Trabalhadores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        /* --- ESTILOS GERAIS E VARIÁVEIS --- */
+        :root {
+            --pt-red: #cc0000;
+            --pt-red-dark: #8a0000;
+            --glass-white: rgba(255, 255, 255, 0.95);
+            --gradient-primary: linear-gradient(135deg, var(--pt-red) 0%, var(--pt-red-dark) 100%);
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; }
+
+        .fade-in { animation: fadeIn 0.8s ease-in; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Animação de Pulso para o Botão Fake News */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        
+        .pulse-btn {
+            animation: pulse-red 2s infinite;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-section {
+            position: relative;
+            overflow: hidden;
+            min-height: 700px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .hero-bg::before, .hero-bg::after {
+            content: ""; position: absolute; width: 55%; height: 90%;
+            background-size: cover; background-repeat: no-repeat;
+            filter: blur(8px) grayscale(20%); opacity: 0.40;
+            transform: scale(1.1); mix-blend-mode: multiply;
+        }
+        .hero-bg::before { left: -5%; top: 0; background-image: url("image_1.png"); background-position: center top; }
+        .hero-bg::after { right: -5%; bottom: 0; background-image: url("image_0.png"); background-position: center center; }
+
+        .hero-section::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255, 245, 245, 0.8) 50%, rgba(220, 53, 69, 0.15) 100%);
+            z-index: 1; backdrop-filter: blur(5px);
+        }
+
+        .hero-section .container { position: relative; z-index: 2; }
+
+        .hero-badge {
+            display: inline-block; padding: 8px 16px; background: rgba(204, 0, 0, 0.1);
+            color: var(--pt-red); border-radius: 50px; font-weight: 700; font-size: 0.9rem;
+            margin-bottom: 20px; border: 1px solid rgba(204, 0, 0, 0.2);
+        }
+
+        .hero-title {
+            font-size: 3.5rem; font-weight: 800; line-height: 1.1;
+            color: #212529; margin-bottom: 20px; letter-spacing: -1px;
+            background: -webkit-linear-gradient(45deg, #333, var(--pt-red-dark));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle { font-size: 1.25rem; color: #555; margin-bottom: 30px; font-weight: 400; line-height: 1.6; }
+
+        /* --- CARDS E BLOCOS --- */
+        .glass-card {
+            background: var(--glass-white); backdrop-filter: blur(10px);
+            border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); overflow: hidden;
+        }
+
+        /* Bloco Rápido na Capa */
+        .action-block {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            border-left: 6px solid var(--pt-red);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .action-block:hover { transform: translateY(-5px); }
+
+        /* Card Fake News Lateral */
+        .fake-news-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 20px;
+            transform: rotate(2deg);
+            transition: transform 0.3s;
+        }
+        .fake-news-card:hover { transform: rotate(0deg) scale(1.02); }
+
+        /* --- NOTÍCIAS --- */
+        .news-card { transition: all 0.3s ease; border-bottom: 4px solid transparent; cursor: pointer; }
+        .news-card:hover { border-bottom-color: var(--pt-red); box-shadow: 0 15px 30px rgba(0,0,0,0.1); transform: translateY(-5px); }
+        .category-badge {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--pt-red); background: rgba(220, 53, 69, 0.08);
+            padding: 5px 10px; border-radius: 6px; display: inline-block; margin-bottom: 10px;
+        }
+        .date-text { font-size: 0.85rem; color: #888; font-weight: 500; }
+
+        /* --- AGENDA --- */
+        .agenda-card { background: #212529; color: white; border-radius: 15px; padding: 30px; position: relative; overflow: hidden; }
+        .agenda-card::after {
+            content: ""; position: absolute; top: 0; right: 0; width: 150px; height: 150px;
+            background: radial-gradient(circle, rgba(220,53,69,0.4) 0%, transparent 70%);
+            border-radius: 50%; transform: translate(30%, -30%);
+        }
+        .agenda-item {
+            padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column;
+        }
+        .agenda-item:last-child { border-bottom: none; }
+        .agenda-date {
+            font-weight: 800; font-size: 0.9rem; color: #ff6b6b; margin-bottom: 5px; letter-spacing: 1px;
+        }
+        .btn-primary-custom {
+            background: var(--gradient-primary); border: none; color: white;
+            padding: 12px 25px; border-radius: 50px; font-weight: 600;
+            transition: all 0.3s; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4); color: white; }
+
+        /* --- PROJETOS/LEGADO --- */
+        .impact-banner {
+            background: linear-gradient(135deg, var(--pt-red-dark) 0%, var(--pt-red) 100%);
+            border-radius: 15px; position: relative; overflow: hidden; color: white;
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+        }
+        .impact-banner::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1;
+        }
+        .project-card { border-left: 5px solid var(--pt-red); transition: transform 0.3s ease; }
+        .project-card:hover { transform: translateY(-5px); }
+        .project-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 2px; }
+        .project-value { font-size: 1.1rem; font-weight: 700; color: var(--pt-red-dark); }
+
+        /* --- HISTÓRICO --- */
+        .candidate-avatar {
+            width: 60px; height: 60px; background: var(--glass-white); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            border: 2px solid rgba(220, 53, 69, 0.2); backdrop-filter: blur(10px);
+        }
+        .section-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid rgba(0, 0, 0, 0.05); }
+        .section-icon { width: 50px; height: 50px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; }
+        .history-timeline { position: relative; padding-left: 30px; }
+        .history-timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--pt-red), transparent); }
+        .timeline-item { position: relative; margin-bottom: 20px; padding-left: 20px; }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -6px; top: 5px; width: 12px; height: 12px;
+            border-radius: 50%; background: var(--pt-red); border: 3px solid white; box-shadow: 0 0 0 2px var(--pt-red);
+        }
+        .candidate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .stats-card { background: var(--glass-white); backdrop-filter: blur(15px); border-radius: 15px; padding: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.3); }
+        .stats-number { font-size: 2.5rem; font-weight: 800; color: var(--pt-red); line-height: 1; margin-bottom: 5px; }
+
+        @media (max-width: 992px) { .hero-title { font-size: 2.5rem; } .hero-section { min-height: auto; padding: 60px 0; } }
+    </style>
+</head>
+<body>
+
+    <div id="topbar-container"></div>
+
+    <section class="hero-section" id="inicio">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <div class="col-lg-7 hero-content fade-in mb-5 mb-lg-0">
+                    <div class="hero-badge">
+                        <i class="fas fa-users me-2"></i> DIRETÓRIO MUNICIPAL
+                    </div>
+                    <h1 class="hero-title">
+                        Construindo um projeto popular para Acopiara
+                    </h1>
+                    <p class="hero-subtitle">
+                        Acompanhe ações, propostas e o legado do Partido dos Trabalhadores. Juntos na luta por uma cidade mais justa e democrática.
+                    </p>
+                    
+                    <div class="action-block p-4 mt-4 d-inline-block">
+                        <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center">
+                            <div>
+                                <h5 class="fw-bold mb-1" style="color: var(--pt-red-dark);">PARTICIPE DA MUDANÇA</h5>
+                                <p class="small text-muted mb-0">Fortaleça a luta democrática em Acopiara.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalFilieSe" class="btn btn-danger rounded-pill fw-bold shadow-sm px-4 py-2">
+                                    <i class="fas fa-star me-2"></i> FILIE-SE
+                                </a>
+                                <a href="#noticias" class="btn btn-outline-dark rounded-pill fw-bold px-3 py-2">
+                                    NOTÍCIAS
+                                </a>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-5 d-none d-lg-block">
+                    <div class="fake-news-card p-4 text-center shadow-lg position-relative fade-in delay-2">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-warning text-dark border border-white shadow-sm px-3 py-2 rounded-pill fw-bold">
+                                <i class="fas fa-bolt me-1"></i> FERRAMENTA IA
+                            </span>
+                        </div>
+                        
+                        <div class="mb-3 mt-3">
+                            <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #212529 0%, #343a40 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 0 0 6px rgba(33, 37, 41, 0.1);">
+                                <i class="fas fa-robot text-warning fa-3x"></i>
+                            </div>
+                        </div>
+                        
+                        <h3 class="fw-bold text-dark mb-1">Combate às Fake News</h3>
+                        <p class="small text-muted mb-4 px-3">
+                            Recebeu uma imagem suspeita? Proteja a democracia. Use nossa Inteligência Artificial para verificar a veracidade.
+                        </p>
+                        
+                        <button class="btn btn-danger w-100 rounded-pill fw-bold py-3 shadow-sm pulse-btn" data-bs-toggle="modal" data-bs-target="#modalFakeDetector">
+                            <i class="fas fa-search me-2"></i> VERIFICAR IMAGEM AGORA
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" id="sobre">
+        <div class="container py-5">
+            <div class="row justify-content-center fade-in delay-1">
+                <div class="col-lg-10">
+                    <div class="glass-card p-4 p-md-5">
+                        <div class="row align-items-center">
+                            <div class="col-lg-3 text-center mb-4 mb-lg-0">
+                                <div style="width: 100px; height: 100px; margin: 0 auto; background: var(--pt-red); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-star text-white" style="font-size: 3rem;"></i>
+                                </div>
+                            </div>
+                            <div class="col-lg-9">
+                                <h3 class="mb-3 fw-bold" style="color: var(--pt-red-dark); text-transform: uppercase;" id="sobreTitulo">
+                                    O PT EM ACOPIARA
+                                </h3>
+                                
+                                <div id="sobreTexto" class="text-secondary" style="white-space: pre-line; line-height: 1.8; text-align: justify;">
+                                    <div class="placeholder-glow">
+                                        <span class="placeholder col-7"></span>
+                                        <span class="placeholder col-4"></span>
+                                        <span class="placeholder col-4"></span>
+                                        <span class="placeholder col-6"></span>
+                                        <span class="placeholder col-8"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light" id="noticias">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-8">
+                    <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+                        <h2 class="mb-0" style="font-size: 2rem; font-weight: 800; color: var(--pt-red-dark);">ÚLTIMAS NOTÍCIAS</h2>
+                        <a href="#" class="text-decoration-none fw-bold small" style="color: var(--pt-red);">VER TODAS <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                    
+                    <div class="row g-4" id="container-noticias-publicas">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-danger" role="status"></div>
+                            <p class="text-muted mt-2">Carregando notícias...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4" id="agenda">
+                    <div class="agenda-card fade-in delay-3 sticky-lg-top" style="top: 20px; z-index: 1;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="mb-0" style="font-weight: 800;">AGENDA</h3>
+                            <span class="badge bg-danger rounded-pill">PRÓXIMOS DIAS</span>
+                        </div>
+                        
+                        <div id="lista-agenda-dinamica">
+                            <div class="text-center py-3 text-white-50 small">Carregando agenda...</div>
+                        </div>
+                        
+                        <button class="btn btn-outline-light w-100 mt-4 rounded-pill btn-sm">
+                            <i class="fas fa-calendar-alt me-2"></i> VER AGENDA COMPLETA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" id="legado-projetos" style="background-color: #fff5f5;">
+        <div class="container fade-in">
+            <div class="impact-banner p-4 p-lg-5 mb-5 text-center text-lg-start d-lg-flex align-items-center justify-content-between">
+                <div class="mb-4 mb-lg-0">
+                    <span class="badge bg-white text-danger mb-2 px-3 py-2 fw-bold" style="font-size: 0.8rem;">REALIZAÇÕES FEDERAIS E ESTADUAIS</span>
+                    <h2 class="display-5 fw-bold mb-2">O BRASIL DO PT ACONTECE AQUI</h2>
+                    <p class="lead mb-0" style="opacity: 0.9;">Veja como Lula, Camilo e Elmano transformam a vida do povo de Acopiara.</p>
+                </div>
+                <div>
+                    <a href="#detalhes-projetos" class="btn btn-light text-danger fw-bold px-4 py-3 shadow-lg rounded-pill">
+                        <i class="fas fa-chart-line me-2"></i> VER INVESTIMENTOS
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-4" id="detalhes-projetos">
+                <div class="col-12 text-center py-4">
+                    <div class="spinner-border text-secondary"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-5" id="historico-eleicoes" style="background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);">
+        <div class="container py-5">
+            <div class="text-center mb-5 fade-in">
+                <h2 class="section-title mb-3 fw-bold" style="color: var(--pt-red-dark);">NOSSA HISTÓRIA NAS URNAS</h2>
+                <p class="text-muted mb-4 mx-auto" style="max-width: 700px;">
+                    Conheça os companheiros e companheiras que representaram o PT nos espaços de poder em Acopiara.
+                </p>
+            </div>
+
+            <div class="row mb-5 g-4 fade-in justify-content-center">
+                <div class="col-md-3 col-sm-6"><div class="stats-card"><div class="stats-number">5</div><div class="stats-label">Mandatos Executivos</div></div></div>
+                <div class="col-md-3 col-sm-6"><div class="stats-card"><div class="stats-number">12</div><div class="stats-label">Vereadores Eleitos</div></div></div>
+                <div class="col-md-3 col-sm-6"><div class="stats-card"><div class="stats-number">25+</div><div class="stats-label">Anos de Luta</div></div></div>
+            </div>
+
+            <div class="row g-5 mb-5">
+                <div class="col-lg-6 fade-in delay-1">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="fas fa-building-columns"></i></div>
+                        <div><h3 class="mb-1 fw-bold text-dark">EXECUTIVO</h3><p class="text-muted mb-0">Prefeitos e Vices</p></div>
+                    </div>
+                    <div class="history-timeline">
+                        <p class="text-muted small ms-4">Carregando histórico...</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 fade-in delay-2">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="fas fa-gavel"></i></div>
+                        <div><h3 class="mb-1 fw-bold text-dark">LEGISLATIVO</h3><p class="text-muted mb-0">Vereadores eleitos</p></div>
+                    </div>
+                    <div class="candidate-grid">
+                        <p class="text-muted small">Carregando histórico...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade" id="modalLeituraNoticia" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content glass-card border-0">
+                <div class="modal-header border-0 pb-0">
+                    <span class="badge bg-danger fs-6" id="modalNoticiaCategoria">CATEGORIA</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-2">
+                    <h2 class="fw-bold mb-2 mt-2" id="modalNoticiaTitulo" style="color: var(--pt-red-dark); line-height: 1.2;">Título da Notícia</h2>
+                    <div class="text-muted mb-4 small border-bottom pb-3">
+                        <i class="far fa-calendar me-1"></i> Publicado em <span id="modalNoticiaData">--/--/----</span>
+                    </div>
+                    
+                    <div id="modalNoticiaImagemContainer" class="mb-4 text-center d-none">
+                        <img src="" id="modalNoticiaImagem" class="img-fluid rounded shadow-sm" style="max-height: 400px; width: 100%; object-fit: cover;">
+                    </div>
+                    
+                    <div class="noticia-texto-completo text-secondary" id="modalNoticiaConteudo" style="white-space: pre-line; line-height: 1.8; font-size: 1.1rem; text-align: justify;">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalFilieSe" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-star me-2"></i>NOVA FILIAÇÃO - PT ACOPIARA</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    
+                    <div id="formFiliacaoContainer">
+                        <div class="alert alert-light border-start border-danger border-4 shadow-sm mb-4">
+                            <p class="mb-0 small text-secondary">
+                                <strong>Bem-vindo(a)!</strong> Parabéns pela decisão. Faremos seu cadastro em nosso banco de dados municipal e, em seguida, você será redirecionado para o sistema nacional.
+                            </p>
+                        </div>
+
+                        <form id="formFiliacao" onsubmit="enviarFiliacao(event)">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small text-muted">NOME COMPLETO</label>
+                                    <input type="text" class="form-control" id="filiaNome" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">NOME DO PAI</label>
+                                    <input type="text" class="form-control" id="filiaPai">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">NOME DA MÃE</label>
+                                    <input type="text" class="form-control" id="filiaMae" required>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label fw-bold small text-muted">ENDEREÇO</label>
+                                    <input type="text" class="form-control" id="filiaEndereco" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold small text-muted">BAIRRO/DISTRITO</label>
+                                    <input type="text" class="form-control" id="filiaBairro" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">TELEFONE / WHATSAPP</label>
+                                    <input type="text" class="form-control" id="filiaTel" placeholder="(88) 9..." required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">EMAIL</label>
+                                    <input type="email" class="form-control" id="filiaEmail" required>
+                                </div>
+                            </div>
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-danger btn-lg fw-bold rounded-pill">
+                                    CONFIRMAR DADOS E AVANÇAR <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="sucessoFiliacao" class="text-center py-4 d-none">
+                        <div class="mb-3 text-success">
+                            <i class="fas fa-check-circle fa-5x"></i>
+                        </div>
+                        <h3 class="fw-bold text-danger mb-3">Parabéns, você acaba de se tornar um novo companheiro da reconstrução!</h3>
+                        <p class="lead text-secondary">
+                            Seus dados foram salvos no diretório municipal.<br>
+                            Aguarde o redirecionamento para o sistema nacional.
+                        </p>
+                        <div class="spinner-border text-danger mt-3" role="status"></div>
+                        <p class="small text-muted mt-2">Redirecionando...</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalFakeDetector" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-user-secret me-2 text-warning"></i>DETECTOR DE FAKE NEWS
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    
+                    <div id="fakeUploadStep">
+                        <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+                        <h4 class="mb-3">Verifique a veracidade da informação</h4>
+                        <p class="text-secondary mb-4">
+                            Nossa Inteligência Artificial analisa padrões de imagem para identificar manipulações digitais e deepfakes.
+                        </p>
+                        
+                        <div class="mb-3">
+                            <input class="form-control form-control-lg" type="file" id="fakeInputFile" accept="image/png, image/jpeg, image/jpg">
+                        </div>
+                        <button class="btn btn-warning btn-lg w-100 fw-bold mt-3" onclick="analisarFake()">
+                            <i class="fas fa-search me-2"></i> ANALISAR IMAGEM
+                        </button>
+                    </div>
+
+                    <div id="fakeLoadingStep" class="d-none py-5">
+                        <div class="spinner-border text-warning mb-3" style="width: 3rem; height: 3rem;"></div>
+                        <h5>A Inteligência Artificial está analisando os pixels...</h5>
+                        <p class="text-muted small">Isso pode levar alguns segundos.</p>
+                    </div>
+
+                    <div id="fakeResultStep" class="d-none">
+                        <h3 id="fakeResultTitle" class="fw-bold mb-2">RESULTADO</h3>
+                        <div class="alert" id="fakeResultAlert"></div>
+                        
+                        <div class="position-relative d-inline-block mb-3">
+                            <img id="fakeResultImg" src="" class="img-fluid rounded shadow" style="max-height: 300px;">
+                        </div>
+
+                        <p id="fakeExplanation" class="text-muted small border p-2 rounded bg-light text-start"></p>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-success fw-bold" onclick="compartilharFake('whatsapp')">
+                                <i class="fab fa-whatsapp me-2"></i> COMPARTILHAR NO WHATSAPP
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="resetFakeModal()">
+                                <i class="fas fa-redo me-2"></i> Nova Análise
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div> 
+    
+    <div id="footbar-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // ==========================================
+        // SCRIPT PRINCIPAL DO INDEX
+        // ==========================================
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Inicializa todos os módulos de uma vez
+            await Promise.all([
+                carregarProjetosIndex(),
+                carregarCandidatosDoBanco(),
+                carregarNoticiasIndex(),
+                carregarAgendaIndex(),
+                carregarSobreIndex()
+            ]);
+        });
+
+        // --- 1. NOTÍCIAS (Busca do Banco) ---
+        async function carregarNoticiasIndex() {
+            try {
+                const response = await fetch('/api/noticias');
+                if (!response.ok) throw new Error('Falha ao buscar notícias');
+                
+                const todasNoticias = await response.json();
+                const container = document.getElementById('container-noticias-publicas');
+                if (!container) return;
+                
+                container.innerHTML = ''; // Limpa loader
+
+                if (!todasNoticias || todasNoticias.length === 0) {
+                    container.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fas fa-newspaper fa-2x mb-2 d-block opacity-50"></i>Nenhuma notícia publicada.</div>';
+                    return;
+                }
+
+                // Pega as 4 primeiras
+                const ultimas4 = todasNoticias.slice(0, 4);
+
+                ultimas4.forEach((noticia, idx) => {
+                    let dataFormatada = noticia.dataPublicacao;
+                    if(dataFormatada) {
+                        const parts = dataFormatada.split('-');
+                        dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    }
+
+                    let resumo = noticia.conteudo || "";
+                    if (resumo.length > 100) resumo = resumo.substring(0, 100) + "...";
+
+                    const delayClass = idx > 0 ? `delay-${idx}` : '';
+
+                    const imgHTML = (noticia.fotoUrl && noticia.fotoUrl.trim() !== "") 
+                        ? `<div class="mb-3 mt-1">
+                                <img src="${noticia.fotoUrl}" class="w-100 shadow-sm" 
+                                    style="height: 220px; object-fit: cover; border-radius: 8px;" 
+                                    alt="Capa da Notícia">
+                            </div>` 
+                        : '';
+
+                    const cardHTML = `
+                    <div class="col-md-6 fade-in ${delayClass}">
+                        <div class="glass-card news-card h-100 position-relative p-4 bg-white" 
+                                style="cursor: pointer;"
+                                onclick='abrirNoticiaModal(${JSON.stringify(noticia).replace(/'/g, "&#39;")})'>
+                            
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="category-badge mb-0">${noticia.categoria || 'PT'}</div>
+                                <small class="text-muted"><i class="far fa-calendar me-1"></i> ${dataFormatada}</small>
+                            </div>
+
+                            ${imgHTML}
+                            
+                            <h5 class="mb-2 mt-2 fw-bold text-dark" style="line-height: 1.3;">${noticia.titulo}</h5>
+                            
+                            <p class="mb-0 text-secondary small">
+                                ${resumo}
+                                <span class="text-danger fw-bold ms-1">Ler mais</span>
+                            </p>
+                        </div>
+                    </div>`;
+                    
+                    container.innerHTML += cardHTML;
+                });
+
+            } catch (error) {
+                console.error("Erro notícias:", error);
+                const container = document.getElementById('container-noticias-publicas');
+                if(container) container.innerHTML = '<div class="col-12 text-center text-danger">Erro ao carregar notícias.</div>';
+            }
+        }
+
+        function abrirNoticiaModal(noticia) {
+            document.getElementById('modalNoticiaCategoria').innerText = noticia.categoria || "NOTÍCIA";
+            document.getElementById('modalNoticiaTitulo').innerText = noticia.titulo;
+            document.getElementById('modalNoticiaConteudo').innerText = noticia.conteudo;
+            
+            let dataFormatada = noticia.dataPublicacao;
+            if(dataFormatada) {
+                const parts = dataFormatada.split('-');
+                dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            document.getElementById('modalNoticiaData').innerText = dataFormatada;
+
+            const imgContainer = document.getElementById('modalNoticiaImagemContainer');
+            const imgElement = document.getElementById('modalNoticiaImagem');
+            
+            if (noticia.fotoUrl && noticia.fotoUrl.trim() !== "") {
+                imgElement.src = noticia.fotoUrl;
+                imgContainer.classList.remove('d-none');
+            } else {
+                imgContainer.classList.add('d-none');
+            }
+
+            new bootstrap.Modal(document.getElementById('modalLeituraNoticia')).show();
+        }
+
+        // --- 2. PROJETOS ---
+        async function carregarProjetosIndex() {
+            try {
+                const response = await fetch('/api/projetos-secao');
+                if (!response.ok) return;
+
+                const dados = await response.json(); 
+                
+                const bannerTitleEl = document.querySelector('.impact-banner h2');
+                const bannerDescEl = document.querySelector('.impact-banner .lead');
+                const bannerSection = document.querySelector('.impact-banner');
+
+                if(bannerTitleEl) bannerTitleEl.innerText = dados.bannerTitle || "O BRASIL DO PT ACONTECE AQUI";
+                if(bannerDescEl) bannerDescEl.innerText = dados.bannerDesc || "";
+                if (dados.bannerBg && dados.bannerBg.trim() !== "" && bannerSection) {
+                    bannerSection.style.backgroundImage = `url('${dados.bannerBg}')`;
+                    bannerSection.style.backgroundSize = "cover";
+                    bannerSection.style.backgroundBlendMode = "multiply";
+                }
+
+                if (dados.projetos && dados.projetos.length > 0) {
+                    const container = document.getElementById('detalhes-projetos');
+                    if(container) {
+                        container.innerHTML = ''; 
+                        dados.projetos.forEach((proj, idx) => {
+                            let badgeClass = 'bg-primary';
+                            let iconBgClass = 'bg-primary bg-opacity-10 text-primary';
+                            
+                            if(proj.status === 'EM VIGÊNCIA') { badgeClass = 'bg-success'; iconBgClass = 'bg-danger bg-opacity-10 text-danger'; }
+                            else if (proj.status === 'EM EXECUÇÃO') { badgeClass = 'bg-warning text-dark'; iconBgClass = 'bg-warning bg-opacity-10 text-dark'; }
+                            else if (proj.status === 'CONCLUÍDO') { badgeClass = 'bg-dark'; iconBgClass = 'bg-dark bg-opacity-10 text-dark'; }
+
+                            let extras = { label2: "INVESTIMENTO", value2: "-", ref: "", gov: "" };
+                            try {
+                                if(proj.description && proj.description.startsWith('{')) extras = JSON.parse(proj.description);
+                                else extras.gov = proj.description;
+                            } catch(e) {}
+
+                            container.innerHTML += `
+                            <div class="col-lg-4 col-md-6 fade-in delay-${(idx % 3) + 1}">
+                                <div class="glass-card project-card h-100 p-4 bg-white">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="${iconBgClass} rounded p-3"><i class="${proj.icon || 'fas fa-hands-holding-child'} fa-2x"></i></div>
+                                        <span class="badge ${badgeClass}">${proj.status}</span>
+                                    </div>
+                                    <h4 class="fw-bold mb-3">${proj.title}</h4>
+                                    <div class="mb-3"><div class="project-label">${proj.label || 'TOTAL'}</div><div class="project-value">${proj.valueText || ''}</div></div>
+                                    <div class="mb-3"><div class="project-label">${extras.label2 || ''}</div><div class="project-value" style="color: #666;">${extras.value2 || ''}</div></div>
+                                    <div class="border-top pt-3 mt-3"><div class="d-flex justify-content-between text-muted small"><span>${extras.ref || ''}</span><span><i class="fas fa-check-circle text-success me-1"></i> ${extras.gov || ''}</span></div></div>
+                                </div>
+                            </div>`;
+                        });
+                    }
+                }
+            } catch (error) { console.error("Erro projetos:", error); }
+        }
+
+        // --- 3. CANDIDATOS ---
+        async function carregarCandidatosDoBanco() {
+            try {
+                const response = await fetch('/api/candidatos');
+                if (!response.ok) return;
+                const listaCandidatos = await response.json();
+                if (!listaCandidatos || listaCandidatos.length === 0) return;
+
+                const timelineExecutivo = document.querySelector('#historico-eleicoes .history-timeline');
+                const gridLegislativo = document.querySelector('#historico-eleicoes .candidate-grid');
+
+                if(timelineExecutivo) timelineExecutivo.innerHTML = '';
+                if(gridLegislativo) gridLegislativo.innerHTML = '';
+
+                listaCandidatos.forEach((cand, idx) => {
+                    const uniqueId = `modalCandBanco${idx}`;
+                    const fotoUrl = cand.fotoUrl && cand.fotoUrl.trim() !== "" ? cand.fotoUrl : null;
+                    
+                    const modalHTML = `
+                        <div class="modal fade" id="${uniqueId}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content glass-card border-0">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="modal-title fw-bold text-danger">DETALHES</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body text-center pt-0">
+                                        <div class="mt-3 mb-3 d-flex justify-content-center">
+                                            <div style="width:150px; height:150px; border-radius:50%; overflow:hidden; border:4px solid var(--pt-red); background:#f8f9fa;">
+                                                ${fotoUrl ? `<img src="${fotoUrl}" style="width:100%; height:100%; object-fit:cover;">` : `<i class="fas fa-user fa-5x mt-4 text-secondary"></i>`}
+                                            </div>
+                                        </div>
+                                        <h3 class="fw-bold mb-0">${cand.nome}</h3>
+                                        <p class="text-danger fw-bold mb-3">${cand.tipo.toUpperCase()}</p>
+                                        <div class="bg-light p-3 rounded text-start mx-2 border">
+                                            <div class="row g-2 text-center mb-3">
+                                                <div class="col-6 border-end"><small class="text-muted d-block fw-bold">ANO</small><strong class="fs-5">${cand.ano}</strong></div>
+                                                <div class="col-6"><small class="text-muted d-block fw-bold">VOTOS</small><strong class="fs-5">${cand.votos}</strong></div>
+                                            </div>
+                                            <p class="mb-0 text-secondary text-center small">${cand.detalhes || 'Sem detalhes adicionais.'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                    const avatarHTML = fotoUrl 
+                        ? `<div class="candidate-avatar me-3"><img src="${fotoUrl}" style="width:100%; height:100%; object-fit:cover;"></div>`
+                        : `<div class="candidate-avatar me-3"><i class="fas fa-user text-danger fa-2x"></i></div>`;
+
+                    if (cand.tipo === 'majoritaria' && timelineExecutivo) {
+                        timelineExecutivo.innerHTML += `
+                        <div class="timeline-item">
+                            <div class="glass-card p-3 candidate-card mb-3 bg-white" data-bs-toggle="modal" data-bs-target="#${uniqueId}">
+                                <div class="d-flex align-items-center">
+                                    ${avatarHTML}
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1 fw-bold text-dark">${cand.nome}</h5>
+                                        <span class="candidate-badge bg-danger text-white">${cand.cargo || 'Prefeito/Vice'}</span>
+                                        <div class="d-flex gap-3 mt-1 text-muted small">
+                                            <span><i class="fas fa-calendar-alt me-1"></i> ${cand.ano}</span>
+                                            <span><i class="fas fa-check me-1"></i> ${cand.votos} votos</span>
+                                        </div>
+                                    </div>
+                                    <div class="ms-3 text-danger"><i class="fas fa-chevron-right"></i></div>
+                                </div>
+                            </div>
+                        </div>`;
+                    } else if (cand.tipo === 'vereador' && gridLegislativo) {
+                        gridLegislativo.innerHTML += `
+                        <div class="glass-card p-3 candidate-card h-100 bg-white" data-bs-toggle="modal" data-bs-target="#${uniqueId}">
+                            <div class="d-flex align-items-start">
+                                ${avatarHTML}
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1 fw-bold text-dark">${cand.nome}</h5>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-danger bg-opacity-10 text-danger small">Vereador</span>
+                                        <small class="text-muted">${cand.ano}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                });
+            } catch (error) { console.error(error); }
+        }
+
+        // --- 4. AGENDA ---
+        async function carregarAgendaIndex() {
+            try {
+                const response = await fetch('/api/agenda');
+                if (!response.ok) return;
+                
+                const agendaItens = await response.json();
+                const container = document.getElementById('lista-agenda-dinamica');
+                if(!container) return;
+
+                container.innerHTML = ''; 
+
+                if (agendaItens.length === 0) {
+                    container.innerHTML = '<div class="text-center text-white-50 py-3">Nenhum evento agendado.</div>';
+                    return;
+                }
+
+                agendaItens.forEach(item => {
+                    container.innerHTML += `
+                    <div class="agenda-item">
+                        <div class="agenda-date">${item.dateText || ''}</div>
+                        <p class="mb-1 text-white"><strong>${item.title || ''}</strong></p>
+                        <p class="mb-1 small text-white-50">${item.location || ''}</p>
+                    </div>`;
+                });
+
+            } catch (error) {
+                console.error("Erro Agenda:", error);
+            }
+        }
+
+        // --- 5. SOBRE ---
+        async function carregarSobreIndex() {
+            try {
+                const res = await fetch('/api/sobre');
+                if(!res.ok) return;
+
+                const data = await res.json();
+                
+                if(data.titulo) {
+                    document.getElementById('sobreTitulo').innerText = data.titulo;
+                }
+                if(data.texto) {
+                    document.getElementById('sobreTexto').innerText = data.texto;
+                } else {
+                        document.getElementById('sobreTexto').innerText = "O PT Acopiara atua na construção de um projeto democrático e popular para o município...";
+                }
+
+            } catch(e) { console.error("Erro ao carregar Sobre:", e); }
+        }
+
+        // --- 6. ENVIO DE FILIAÇÃO (MODAL) ---
+        async function enviarFiliacao(event) {
+            event.preventDefault();
+            
+            const btn = event.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processando...';
+
+            const payload = {
+                nome: document.getElementById('filiaNome').value,
+                nomePai: document.getElementById('filiaPai').value,
+                nomeMae: document.getElementById('filiaMae').value,
+                endereco: document.getElementById('filiaEndereco').value,
+                bairro: document.getElementById('filiaBairro').value,
+                telefone: document.getElementById('filiaTel').value,
+                email: document.getElementById('filiaEmail').value
+            };
+
+            try {
+                const response = await fetch('/api/filiados', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('formFiliacaoContainer').classList.add('d-none');
+                    document.getElementById('sucessoFiliacao').classList.remove('d-none');
+
+                    setTimeout(() => {
+                        window.location.href = "https://filiacao.pt.org.br/?utm_source=sitept";
+                    }, 4000);
+                } else {
+                    throw new Error("Erro ao salvar");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Não foi possível realizar o cadastro no momento. Verifique sua conexão.");
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+    </script>
+    
+    <script>
+        async function analisarFake() {
+            const input = document.getElementById('fakeInputFile');
+            if(input.files.length === 0) return alert("Selecione uma imagem!");
+
+            // Troca telas
+            document.getElementById('fakeUploadStep').classList.add('d-none');
+            document.getElementById('fakeLoadingStep').classList.remove('d-none');
+
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            try {
+                const res = await fetch('/api/fake-detector/analisar', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                // Mostra resultado
+                document.getElementById('fakeLoadingStep').classList.add('d-none');
+                document.getElementById('fakeResultStep').classList.remove('d-none');
+
+                const title = document.getElementById('fakeResultTitle');
+                const alertBox = document.getElementById('fakeResultAlert');
+                const img = document.getElementById('fakeResultImg');
+
+                img.src = data.imageUrl; // Imagem processada pelo Java
+                document.getElementById('fakeExplanation').innerText = "EXPLICAÇÃO DA IA: " + data.motivo;
+
+                if(data.isFake) {
+                    title.innerText = "⚠️ CONTEÚDO SUSPEITO DETECTADO";
+                    title.className = "fw-bold mb-2 text-danger";
+                    alertBox.className = "alert alert-danger fw-bold";
+                    alertBox.innerText = "Esta imagem possui alta probabilidade de manipulação digital.";
+                } else {
+                    title.innerText = "✅ CONTEÚDO APARENTEMENTE AUTÊNTICO";
+                    title.className = "fw-bold mb-2 text-success";
+                    alertBox.className = "alert alert-success fw-bold";
+                    alertBox.innerText = "Não foram encontrados traços de manipulação.";
+                }
+
+            } catch(e) {
+                console.error(e);
+                alert("Erro na análise.");
+                resetFakeModal();
+            }
+        }
+
+        function resetFakeModal() {
+            document.getElementById('fakeInputFile').value = "";
+            document.getElementById('fakeResultStep').classList.add('d-none');
+            document.getElementById('fakeUploadStep').classList.remove('d-none');
+        }
+
+        function compartilharFake(rede) {
+            const texto = "Acabei de verificar uma imagem no Detector IA do PT Acopiara! Confira o resultado.";
+            if(rede === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`, '_blank');
+            }
+        }
+    </script>
+    <script src="/js/loader.js"></script>
+    <script src="/js/main.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Arquivos compilados e de build
+target/
+*.class
+
+# Logs
+*.log
+
+# Configurações de IDE (não devem ir para o repositório)
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.sts4-cache/
+
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Wrappers do Maven (opcional, mas recomendado manter se usar wrapper)
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- DADOS SENSÍVEIS E UPLOADS ---
+# Ignorar uploads locais para não pesar o git (Candidatos, Fake News, etc)
+# O código Java está salvando em src/main/resources/static/uploads
+src/main/resources/static/uploads/
+# Caso tenha configurado para salvar na raiz
+uploads/
+
+# Credenciais (caso crie um arquivo de propriedades local)
+application-local.properties
+.env

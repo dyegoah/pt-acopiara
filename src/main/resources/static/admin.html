@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - PT Acopiara</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { min-height: 100vh; background: linear-gradient(180deg, #b91d1d 0%, #7f1d1d 100%); color: white; }
+        .nav-link { color: rgba(255,255,255,0.85); margin-bottom: 5px; border-radius: 5px; cursor: pointer; }
+        .nav-link:hover, .nav-link.active { background-color: rgba(255,255,255,0.2); color: white; font-weight: bold; }
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #dee2e6; }
+        .spinner-border-sm { width: 1rem; height: 1rem; border-width: 0.15em; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-lg-2 sidebar p-4">
+            <h4 class="mb-4"><i class="fas fa-star me-2"></i>Admin PT</h4>
+            <div class="nav flex-column nav-pills" id="adminTabs" role="tablist">
+                <button class="nav-link active text-start" data-bs-toggle="pill" data-bs-target="#tab-history">Histórico & Candidatos</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-hero">Capa (Hero)</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-next">Próx. Atividade</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-about">Sobre o PT</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-agenda">Agenda</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-projetos">Projetos/Obras</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-noticias">Notícias</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-filiados">
+                    <i class="fas fa-id-card me-2"></i> Cadastro de Filiados
+                </button>
+				<button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-fake-stats">
+								    <i class="fas fa-robot me-2"></i> Estatísticas Fake News
+								</button>
+            </div>
+            <div class="mt-4 pt-3 border-top border-white-50">
+                <a href="index.html" target="_blank" class="btn btn-light w-100 btn-sm">Ver Site</a>
+            </div>
+        </div>
+
+        <div class="col-md-9 col-lg-10 p-4">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-secondary">Gerenciamento de Conteúdo</h2>
+                <button onclick="salvarOutrosDados()" class="btn btn-outline-primary shadow-sm">
+                    <i class="fas fa-save me-2"></i> Salvar Abas Gerais (Local)
+                </button>
+            </div>
+
+            <div class="tab-content">
+                
+                <div class="tab-pane fade show active" id="tab-history">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="m-0 text-primary"><i class="fas fa-users me-2"></i>Lista de Candidatos</h5>
+                            <button class="btn btn-primary" onclick="addHistoryItem()">
+                                <i class="fas fa-plus me-1"></i> Novo Candidato
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="p-3 bg-light border-bottom">
+                                <label class="fw-bold me-2">Filtrar:</label>
+                                <select class="form-select w-auto d-inline-block form-select-sm" onchange="renderHistoryList()" id="filterHistory">
+                                    <option value="all">Todos</option>
+                                    <option value="majoritaria">Executivo</option>
+                                    <option value="vereador">Legislativo</option>
+                                </select>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 15%">Foto</th>
+                                            <th style="width: 20%">Nome</th>
+                                            <th style="width: 15%">Cargo</th>
+                                            <th style="width: 10%">Ano</th>
+                                            <th style="width: 10%">Votos</th>
+                                            <th style="width: 20%">Detalhes</th>
+                                            <th style="width: 10%" class="text-center">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyListBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-hero">
+                    <div class="card shadow-sm">
+                        <div class="card-header">Configuração da Capa</div>
+                        <div class="card-body">
+                            <label class="form-label">Imagem de Fundo</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="heroImage" placeholder="URL da imagem">
+                                <input type="file" class="d-none" id="heroUpload" accept="image/*" onchange="uploadSimples(this, 'heroImage')">
+                                <button class="btn btn-secondary" onclick="document.getElementById('heroUpload').click()">
+                                    <i class="fas fa-cloud-upload-alt"></i> Upload
+                                </button>
+                            </div>
+                            <label class="form-label">Título Principal</label>
+                            <input type="text" class="form-control mb-3" id="heroTitle">
+                            <label class="form-label">Subtítulo</label>
+                            <textarea class="form-control" id="heroSubtitle" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-next">
+                    <div class="card shadow-sm">
+                        <div class="card-header">Card Próxima Atividade</div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12"><label>Nome do Evento</label><input type="text" class="form-control" id="nextActTitle"></div>
+                                <div class="col-md-6"><label>Data/Hora</label><input type="text" class="form-control" id="nextActDate"></div>
+                                <div class="col-md-6"><label>Local</label><input type="text" class="form-control" id="nextActLoc"></div>
+                                <div class="col-12"><label>Pauta/Descrição</label><textarea class="form-control" id="nextActPauta" rows="2"></textarea></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-about">
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>Sobre o Partido</span>
+                            <button class="btn btn-sm btn-success" onclick="salvarSobre(this)">
+                                <i class="fas fa-save me-1"></i> Salvar Alterações
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <label class="form-label text-muted small fw-bold">TÍTULO DA SEÇÃO</label>
+                            <input type="text" class="form-control mb-3 fw-bold" id="aboutTitle" placeholder="Ex: O PT EM ACOPIARA">
+                            
+                            <label class="form-label text-muted small fw-bold">TEXTO DESCRITIVO</label>
+                            <textarea class="form-control" id="aboutText" rows="8" placeholder="Digite a história e missão do partido..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-agenda">
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>Itens da Agenda</span>
+                            <button class="btn btn-sm btn-primary" onclick="addAgendaItem()">
+                                <i class="fas fa-plus me-1"></i> Novo Item
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 20%">Data</th>
+                                        <th style="width: 40%">Evento & Descrição</th>
+                                        <th style="width: 25%">Local</th>
+                                        <th style="width: 15%" class="text-center">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agendaListBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-projetos">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">Banner de Projetos</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label>Título</label><input type="text" class="form-control" id="projectBannerTitle"></div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Imagem Fundo</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="projectBannerBg">
+                                        <input type="file" class="d-none" id="projUpload" accept="image/*" onchange="uploadSimples(this, 'projectBannerBg')">
+                                        <button class="btn btn-secondary" onclick="document.getElementById('projUpload').click()"><i class="fas fa-upload"></i></button>
+                                    </div>
+                                </div>
+                                <div class="col-12"><label>Descrição</label><input type="text" class="form-control" id="projectBannerDesc"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>Lista de Obras</span>
+                            <button class="btn btn-sm btn-primary" onclick="addProjectItem()"><i class="fas fa-plus me-1"></i> Nova Obra</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Programa</th>
+                                        <th>Valor</th>
+                                        <th>Outros Dados</th>
+                                        <th>Outros Dados</th>
+                                        <th class="text-center">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projectsListBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-noticias">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="m-0 text-primary"><i class="fas fa-newspaper me-2"></i>Gerenciar Notícias</h5>
+                            <button class="btn btn-primary" onclick="addNoticiaItem()">
+                                <i class="fas fa-plus me-1"></i> Nova Notícia
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 15%">Capa</th>
+                                            <th style="width: 15%">Categoria</th>
+                                            <th style="width: 20%">Título & Data</th>
+                                            <th style="width: 35%">Conteúdo</th>
+                                            <th style="width: 15%" class="text-center">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="noticiasListBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="tab-filiados">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white py-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="m-0 text-danger fw-bold"><i class="fas fa-users me-2"></i>Base de Filiados (Local)</h5>
+                                <span class="badge bg-secondary" id="totalFiliadosBadge">0 registros</span>
+                            </div>
+                            
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="buscaFiliadoInput" 
+                                       placeholder="Localizar por nome, bairro, telefone, pai, mãe ou email..." 
+                                       onkeyup="filtrarFiliados()">
+                            </div>
+                        </div>
+                        
+                        <div class="card-body p-0">
+                            <div class="table-responsive" style="max-height: 70vh;">
+                                <table class="table table-striped table-hover align-middle mb-0">
+                                    <thead class="table-dark sticky-top">
+                                        <tr>
+                                            <th>Nome Completo</th>
+                                            <th>Filiação (Pai/Mãe)</th>
+                                            <th>Contato</th>
+                                            <th>Endereço/Bairro</th>
+                                            <th>Data / Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabelaFiliadosBody">
+                                        </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+								
+				<div class="tab-pane fade" id="tab-fake-stats">
+				    <div class="card shadow-sm border-0">
+				        <div class="card-header bg-warning text-dark fw-bold">
+				            <i class="fas fa-chart-pie me-2"></i> Relatório de Análises da IA
+				        </div>
+				        <div class="card-body">
+				            <div class="row text-center g-4">
+				                <div class="col-md-4">
+				                    <div class="p-3 bg-light rounded border">
+				                        <h2 class="display-4 fw-bold text-primary" id="statTotal">0</h2>
+				                        <p class="text-muted fw-bold">TOTAL ANALISADO</p>
+				                    </div>
+				                </div>
+				                <div class="col-md-4">
+				                    <div class="p-3 bg-light rounded border">
+				                        <h2 class="display-4 fw-bold text-danger" id="statFakes">0</h2>
+				                        <p class="text-muted fw-bold">FAKES DETECTADOS</p>
+				                    </div>
+				                </div>
+				                <div class="col-md-4">
+				                    <div class="p-3 bg-light rounded border">
+				                        <h2 class="display-4 fw-bold text-success" id="statReais">0</h2>
+				                        <p class="text-muted fw-bold">VERDADEIROS</p>
+				                    </div>
+				                </div>
+				            </div>
+				            
+				            <div class="mt-4 text-center">
+				                <button class="btn btn-outline-dark" onclick="carregarStatsFake()">
+				                    <i class="fas fa-sync-alt me-2"></i> Atualizar Dados
+				                </button>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // ==========================================
+    // ESTADO GLOBAL DO ADMIN
+    // ==========================================
+    let projectData = { bannerTitle: "", bannerDesc: "", bannerBg: "", projetos: [] };
+    let historyData = [];
+    let noticiasData = [];
+    let agendaData = [];
+    let listaFiliados = [];
+
+    // INICIALIZAÇÃO UNIFICADA: Carrega tudo ao abrir a página
+    document.addEventListener('DOMContentLoaded', async () => {
+        await Promise.all([
+            carregarProjetos(),
+            carregarCandidatosDoBanco(),
+            carregarNoticiasAdmin(),
+            carregarAgendaAdmin(),
+            carregarSobreAdmin(),
+            carregarFiliadosAdmin() // Vírgula corrigida
+        ]);
+    });
+
+    // ==========================================
+    // 1. PROJETOS (OBRAS)
+    // ==========================================
+    async function carregarProjetos() {
+        try {
+            const res = await fetch('/api/projetos-secao');
+            if(res.ok) {
+                const data = await res.json();
+                projectData = {
+                    bannerTitle: data.bannerTitle || "",
+                    bannerDesc: data.bannerDesc || "",
+                    bannerBg: data.bannerBg || "",
+                    projetos: data.projetos || []
+                };
+
+                const elTitle = document.getElementById('projectBannerTitle');
+                if(elTitle) elTitle.value = projectData.bannerTitle;
+                const elDesc = document.getElementById('projectBannerDesc');
+                if(elDesc) elDesc.value = projectData.bannerDesc;
+                const elBg = document.getElementById('projectBannerBg');
+                if(elBg) elBg.value = projectData.bannerBg;
+
+                renderProjectsList();
+            }
+        } catch (e) { console.error("Erro projetos:", e); }
+    }
+
+    function renderProjectsList() {
+        const tb = document.getElementById('projectsListBody'); 
+        if(!tb) return;
+        tb.innerHTML = '';
+        
+        projectData.projetos.forEach((proj, idx) => {
+            let extras = { label2: "INVESTIMENTO", value2: "R$ 0,00", ref: "Ref. 2025", gov: "Governo Federal" };
+            try {
+                if(proj.description && proj.description.trim().startsWith('{')) {
+                    extras = JSON.parse(proj.description);
+                }
+            } catch(e) {}
+
+            tb.innerHTML += `
+            <tr class="align-middle bg-white border-bottom">
+                <td>
+                    <label class="small text-muted mb-0">Título</label>
+                    <input type="text" class="form-control form-control-sm fw-bold mb-2" value="${proj.title || ''}" onchange="upProj(${idx}, 'title', this.value)">
+                    <label class="small text-muted mb-0">Ícone</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="${proj.icon || 'fas fa-star'}"></i></span>
+                        <input type="text" class="form-control" value="${proj.icon || ''}" onchange="upProj(${idx}, 'icon', this.value)">
+                    </div>
+                </td>
+                <td>
+                    <label class="small text-muted mb-0">Rótulo 1</label>
+                    <input type="text" class="form-control form-control-sm mb-2" value="${proj.label || ''}" onchange="upProj(${idx}, 'label', this.value)">
+                    <label class="small text-muted mb-0">Valor 1</label>
+                    <input type="text" class="form-control form-control-sm fw-bold text-primary" value="${proj.valueText || ''}" onchange="upProj(${idx}, 'valueText', this.value)">
+                </td>
+                <td>
+                    <label class="small text-muted mb-0">Rótulo 2</label>
+                    <input type="text" class="form-control form-control-sm mb-2" value="${extras.label2 || ''}" onchange="upProjExtra(${idx}, 'label2', this.value)">
+                    <label class="small text-muted mb-0">Valor 2</label>
+                    <input type="text" class="form-control form-control-sm fw-bold text-success" value="${extras.value2 || ''}" onchange="upProjExtra(${idx}, 'value2', this.value)">
+                </td>
+                <td>
+                    <div class="d-flex gap-1 mb-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Ref." value="${extras.ref || ''}" onchange="upProjExtra(${idx}, 'ref', this.value)">
+                        <input type="text" class="form-control form-control-sm" placeholder="Órgão" value="${extras.gov || ''}" onchange="upProjExtra(${idx}, 'gov', this.value)">
+                    </div>
+                    <select class="form-select form-select-sm" onchange="upProj(${idx}, 'status', this.value)">
+                        <option value="EM VIGÊNCIA" ${proj.status==='EM VIGÊNCIA'?'selected':''}>Vigência</option>
+                        <option value="EM EXECUÇÃO" ${proj.status==='EM EXECUÇÃO'?'selected':''}>Execução</option>
+                        <option value="CONCLUÍDO" ${proj.status==='CONCLUÍDO'?'selected':''}>Concluído</option>
+                    </select>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-success mb-1 w-100" onclick="salvarOutrosDados()"><i class="fas fa-save"></i></button>
+                    <button class="btn btn-sm btn-outline-danger w-100" onclick="rmProj(${idx})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        });
+        if(projectData.projetos.length === 0) tb.innerHTML = '<tr><td colspan="5" class="text-center p-4">Nenhum projeto.</td></tr>';
+    }
+
+    function addProjectItem() {
+        const extrasPadrao = JSON.stringify({ label2: "INVESTIMENTO", value2: "R$ 0,00", ref: "2025", gov: "Gov. Federal" });
+        projectData.projetos.push({ title: "Novo Projeto", description: extrasPadrao, valueText: "0", label: "BENEFICIÁRIOS", status: "EM VIGÊNCIA", icon: "fas fa-hands-holding-child" });
+        renderProjectsList();
+    }
+    function upProj(idx, key, val) { projectData.projetos[idx][key] = val; }
+    function upProjExtra(idx, key, val) {
+        let extras = {};
+        try { extras = JSON.parse(projectData.projetos[idx].description); } catch(e) { extras = { label2: "", value2: "", ref: "", gov: "" }; }
+        extras[key] = val;
+        projectData.projetos[idx].description = JSON.stringify(extras);
+    }
+    function rmProj(idx) { 
+        if(confirm('Excluir?')) { 
+            projectData.projetos.splice(idx, 1); 
+            renderProjectsList(); 
+            salvarOutrosDados(); 
+        } 
+    }
+    async function salvarOutrosDados() {
+        try {
+            const payload = {
+                bannerTitle: document.getElementById('projectBannerTitle').value,
+                bannerDesc: document.getElementById('projectBannerDesc').value,
+                bannerBg: document.getElementById('projectBannerBg').value,
+                projetos: projectData.projetos
+            };
+            const res = await fetch('/api/projetos-secao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if(res.ok) { alert("Salvo!"); await carregarProjetos(); } else alert("Erro ao salvar.");
+        } catch (e) { alert("Erro: " + e.message); }
+    }
+
+    // ==========================================
+    // 2. CANDIDATOS
+    // ==========================================
+    async function carregarCandidatosDoBanco() {
+        try {
+            const response = await fetch('/api/candidatos'); 
+            if (response.ok) {
+                historyData = await response.json();
+                renderHistoryList();
+            }
+        } catch (error) { console.error(error); }
+    }
+    function renderHistoryList() {
+        const tb = document.getElementById('historyListBody'); 
+        if(!tb) return;
+        tb.innerHTML = '';
+        const filterEl = document.getElementById('filterHistory');
+        const filter = filterEl ? filterEl.value : 'all';
+        
+        historyData.forEach((item, index) => {
+             if(filter !== 'all' && item.tipo !== filter) return;
+             const imgSrc = item.fotoUrl ? item.fotoUrl : 'https://via.placeholder.com/50';
+             const itemId = item.id || null;
+             tb.innerHTML += `
+            <tr>
+                <td>
+                    <div class="text-center">
+                        <img src="${imgSrc}" class="img-preview mb-1" id="preview-${index}">
+                        <input type="file" class="form-control form-control-sm" id="file-${index}" accept="image/*">
+                        <input type="hidden" id="url-${index}" value="${item.fotoUrl || ''}">
+                    </div>
+                </td>
+                <td><input type="text" class="form-control form-control-sm" value="${item.nome || ''}" id="nome-${index}"></td>
+                <td>
+                    <select class="form-select form-select-sm" id="tipo-${index}">
+                        <option value="majoritaria" ${item.tipo=='majoritaria'?'selected':''}>Prefeito/Vice</option>
+                        <option value="vereador" ${item.tipo=='vereador'?'selected':''}>Vereador</option>
+                        <option value="historico" ${item.tipo=='historico'?'selected':''}>Histórico</option>
+                    </select>
+                </td>
+                <td><input type="number" class="form-control form-control-sm" value="${item.ano || ''}" id="ano-${index}"></td>
+                <td><input type="text" class="form-control form-control-sm" value="${item.votos || ''}" id="votos-${index}"></td>
+                <td><textarea class="form-control form-control-sm" rows="1" id="detalhes-${index}">${item.detalhes || ''}</textarea></td>
+                <td class="text-center">
+                    <button class="btn btn-success btn-sm mb-1 w-100" onclick="salvarCandidato(${index}, ${itemId}, this)"><i class="fas fa-save"></i></button>
+                    <button class="btn btn-outline-danger btn-sm w-100" onclick="deletarCandidato(${itemId})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        });
+    }
+    function addHistoryItem() {
+        historyData.unshift({ id: null, nome: "", tipo: 'vereador', ano: 2024, votos: "", fotoUrl: "", detalhes: "" });
+        renderHistoryList();
+    }
+    async function salvarCandidato(idx, idBanco, btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `...`; btn.disabled = true;
+        try {
+            const fileInput = document.getElementById(`file-${idx}`);
+            let finalUrl = document.getElementById(`url-${idx}`).value;
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                const resUpload = await fetch('/api/upload', { method: 'POST', body: formData });
+                if(resUpload.ok) finalUrl = await resUpload.text();
+            }
+            const payload = {
+                id: idBanco,
+                nome: document.getElementById(`nome-${idx}`).value,
+                tipo: document.getElementById(`tipo-${idx}`).value,
+                ano: document.getElementById(`ano-${idx}`).value,
+                votos: document.getElementById(`votos-${idx}`).value,
+                detalhes: document.getElementById(`detalhes-${idx}`).value,
+                fotoUrl: finalUrl
+            };
+            const res = await fetch('/api/candidatos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+            if (res.ok) { alert("Salvo!"); await carregarCandidatosDoBanco(); }
+        } catch (e) { alert(e.message); } finally { btn.innerHTML = originalHtml; btn.disabled = false; }
+    }
+    async function deletarCandidato(id) {
+        if(!id) { historyData = historyData.filter(h => h.id !== null); renderHistoryList(); return; }
+        if(confirm("Apagar?")) {
+            const res = await fetch(`/api/candidatos/${id}`, { method: 'DELETE' });
+            if(res.ok) await carregarCandidatosDoBanco();
+        }
+    }
+
+    // ==========================================
+    // 3. NOTÍCIAS
+    // ==========================================
+    async function carregarNoticiasAdmin() {
+        try {
+            const res = await fetch('/api/noticias');
+            if(res.ok) {
+                noticiasData = await res.json();
+                renderNoticiasList();
+            }
+        } catch(e) { console.error("Erro notícias:", e); }
+    }
+    function renderNoticiasList() {
+        const tb = document.getElementById('noticiasListBody');
+        if(!tb) return;
+        tb.innerHTML = '';
+        noticiasData.forEach((item, index) => {
+            const imgSrc = item.fotoUrl ? item.fotoUrl : 'https://via.placeholder.com/150x100?text=Sem+Foto';
+            const itemId = item.id || null;
+            tb.innerHTML += `
+            <tr>
+                <td>
+                    <div class="text-center">
+                        <img src="${imgSrc}" class="img-preview mb-2" style="width: 80px; height: 60px;" id="preview-news-${index}">
+                        <input type="file" class="form-control form-control-sm" id="file-news-${index}" accept="image/*">
+                        <input type="hidden" id="url-news-${index}" value="${item.fotoUrl || ''}">
+                    </div>
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm mb-1" value="${item.categoria || ''}" id="cat-news-${index}">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm fw-bold mb-2" value="${item.titulo || ''}" id="titulo-news-${index}">
+                    <input type="date" class="form-control form-control-sm" value="${item.dataPublicacao || ''}" id="data-news-${index}">
+                </td>
+                <td><textarea class="form-control form-control-sm" rows="3" id="conteudo-news-${index}">${item.conteudo || ''}</textarea></td>
+                <td class="text-center">
+                    <button class="btn btn-success btn-sm mb-2 w-100" onclick="salvarNoticia(${index}, ${itemId}, this)"><i class="fas fa-save"></i></button>
+                    <button class="btn btn-outline-danger btn-sm w-100" onclick="deletarNoticia(${itemId})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        });
+        if(noticiasData.length === 0) tb.innerHTML = '<tr><td colspan="5" class="text-center p-4">Nenhuma notícia.</td></tr>';
+    }
+    function addNoticiaItem() {
+        noticiasData.unshift({ id: null, titulo: "", conteudo: "", categoria: "GERAL", dataPublicacao: new Date().toISOString().split('T')[0], fotoUrl: "" });
+        renderNoticiasList();
+    }
+    async function salvarNoticia(idx, idBanco, btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `...`; btn.disabled = true;
+        try {
+            const fileInput = document.getElementById(`file-news-${idx}`);
+            let finalUrl = document.getElementById(`url-news-${idx}`).value;
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                const resUpload = await fetch('/api/upload', { method: 'POST', body: formData });
+                if(resUpload.ok) finalUrl = await resUpload.text();
+            }
+            const payload = {
+                id: idBanco,
+                titulo: document.getElementById(`titulo-news-${idx}`).value,
+                categoria: document.getElementById(`cat-news-${idx}`).value,
+                dataPublicacao: document.getElementById(`data-news-${idx}`).value,
+                conteudo: document.getElementById(`conteudo-news-${idx}`).value,
+                fotoUrl: finalUrl
+            };
+            const res = await fetch('/api/noticias', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+            if (res.ok) { alert("Salvo!"); await carregarNoticiasAdmin(); }
+        } catch (e) { alert("Erro: " + e.message); } finally { btn.innerHTML = originalHtml; btn.disabled = false; }
+    }
+    async function deletarNoticia(id) {
+        if(!id) { noticiasData = noticiasData.filter(h => h.id !== null); renderNoticiasList(); return; }
+        if(confirm("Excluir?")) {
+            const res = await fetch(`/api/noticias/${id}`, { method: 'DELETE' });
+            if(res.ok) await carregarNoticiasAdmin();
+        }
+    }
+
+    // ==========================================
+    // 4. AGENDA (CORRIGIDA E UNIFICADA)
+    // ==========================================
+    async function carregarAgendaAdmin() {
+        try {
+            const res = await fetch('/api/agenda');
+            if(res.ok) {
+                agendaData = await res.json();
+                renderAgendaList();
+            }
+        } catch(e) { console.error("Erro agenda:", e); }
+    }
+
+    function renderAgendaList() {
+        const tb = document.getElementById('agendaListBody');
+        if(!tb) return;
+        tb.innerHTML = '';
+
+        agendaData.forEach((item, index) => {
+            const itemId = item.id || null;
+            tb.innerHTML += `
+            <tr>
+                <td>
+                    <input type="text" class="form-control form-control-sm text-center fw-bold text-danger" 
+                           placeholder="Ex: 10 DEZ" value="${item.dateText || ''}" id="date-agenda-${index}">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm fw-bold mb-1" 
+                           placeholder="Evento" value="${item.title || ''}" id="title-agenda-${index}">
+                    <textarea class="form-control form-control-sm text-muted" rows="1" 
+                           placeholder="Descrição" id="desc-agenda-${index}">${item.description || ''}</textarea>
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" 
+                           placeholder="Local" value="${item.location || ''}" id="loc-agenda-${index}">
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-success btn-sm mb-1 w-100" onclick="salvarAgenda(${index}, ${itemId}, this)"><i class="fas fa-save"></i></button>
+                    <button class="btn btn-outline-danger btn-sm w-100" onclick="deletarAgenda(${itemId})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        });
+        if(agendaData.length === 0) tb.innerHTML = '<tr><td colspan="4" class="text-center p-3 text-muted">Agenda vazia.</td></tr>';
+    }
+
+    function addAgendaItem() {
+        agendaData.push({ id: null, dateText: "DIA MÊS", title: "", location: "", description: "" });
+        renderAgendaList();
+    }
+
+    async function salvarAgenda(idx, idBanco, btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `...`; btn.disabled = true;
+        try {
+            const payload = {
+                id: idBanco,
+                dateText: document.getElementById(`date-agenda-${idx}`).value,
+                title: document.getElementById(`title-agenda-${idx}`).value,
+                description: document.getElementById(`desc-agenda-${idx}`).value,
+                location: document.getElementById(`loc-agenda-${idx}`).value
+            };
+            const res = await fetch('/api/agenda', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) { alert("Salvo!"); await carregarAgendaAdmin(); } 
+            else { alert("Erro ao salvar."); }
+        } catch (e) { alert(e.message); } 
+        finally { btn.innerHTML = originalHtml; btn.disabled = false; }
+    }
+
+    async function deletarAgenda(id) {
+        if(!id) { agendaData = agendaData.filter(h => h.id !== null); renderAgendaList(); return; }
+        if(confirm("Excluir?")) {
+            const res = await fetch(`/api/agenda/${id}`, { method: 'DELETE' });
+            if(res.ok) await carregarAgendaAdmin();
+        }
+    }
+
+    // ==========================================
+    // 5. SOBRE O PT
+    // ==========================================
+    async function carregarSobreAdmin() {
+        try {
+            const res = await fetch('/api/sobre');
+            if(res.ok) {
+                const data = await res.json();
+                document.getElementById('aboutTitle').value = data.titulo || "O PT EM ACOPIARA";
+                document.getElementById('aboutText').value = data.texto || "";
+            }
+        } catch(e) { console.error("Erro Sobre:", e); }
+    }
+
+    async function salvarSobre(btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`; 
+        btn.disabled = true;
+
+        try {
+            const payload = {
+                titulo: document.getElementById('aboutTitle').value,
+                texto: document.getElementById('aboutText').value
+            };
+
+            const res = await fetch('/api/sobre', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) { alert("Dados 'Sobre' salvos com sucesso!"); }
+            else { alert("Erro ao salvar."); }
+
+        } catch(e) { 
+            alert("Erro: " + e.message); 
+        } finally { 
+            btn.innerHTML = originalHtml; 
+            btn.disabled = false; 
+        }
+    }
+
+    // Função auxiliar de upload
+    async function uploadSimples(input, targetId) {
+        if(input.files.length === 0) return;
+        const target = document.getElementById(targetId);
+        target.value = "Enviando...";
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+        try {
+            const res = await fetch('/api/upload', {method:'POST', body:formData});
+            if(res.ok) target.value = await res.text();
+            else alert("Erro no upload");
+        } catch(e) { console.error(e); }
+    }
+
+    // ==========================================
+    // 6. GESTÃO DE FILIADOS (INTEGRADO JAVA)
+    // ==========================================
+
+    // Carrega a lista. Se passar 'termo', faz a busca no servidor.
+    async function carregarFiliadosAdmin(termo = "") {
+        try {
+            let url = '/api/filiados';
+            
+            // Se tiver termo de busca, adiciona na URL
+            if (termo.trim() !== "") {
+                url += `?termo=${encodeURIComponent(termo)}`;
+            }
+
+            const res = await fetch(url);
+            if(res.ok) {
+                const listaFiliados = await res.json();
+                renderizarTabelaFiliados(listaFiliados);
+            }
+        } catch(e) { 
+            console.error("Erro ao carregar filiados:", e); 
+        }
+    }
+
+    function renderizarTabelaFiliados(dados) {
+        const tbody = document.getElementById('tabelaFiliadosBody');
+        const badge = document.getElementById('totalFiliadosBadge');
+        if(!tbody) return;
+
+        tbody.innerHTML = '';
+        if(badge) badge.innerText = `${dados.length} registros`;
+
+        if(dados.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Nenhum registro encontrado.</td></tr>';
+            return;
+        }
+
+        dados.forEach(f => {
+            // Formata data vinda do Java (Ex: "2025-12-10T10:00:00")
+            let dataFormatada = '-';
+            if(f.dataRegistro) {
+                const dataObj = new Date(f.dataRegistro);
+                dataFormatada = dataObj.toLocaleDateString('pt-BR');
+            }
+
+            // ATENÇÃO: Campos acessados via camelCase (padrão Java JSON)
+            tbody.innerHTML += `
+            <tr>
+                <td>
+                    <strong class="text-dark">${f.nome}</strong>
+                </td>
+                <td>
+                    <small class="d-block text-muted">Mãe: ${f.nomeMae}</small>
+                    <small class="d-block text-muted">Pai: ${f.nomePai || '-'}</small>
+                </td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <span class="text-success small"><i class="fab fa-whatsapp me-1"></i> ${f.telefone}</span>
+                        <span class="text-primary small"><i class="far fa-envelope me-1"></i> ${f.email}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="d-block small text-truncate" style="max-width: 200px;">${f.endereco}</span>
+                    <span class="badge bg-light text-dark border">${f.bairro}</span>
+                </td>
+                <td>
+                    <small class="text-muted">${dataFormatada}</small>
+                    <button class="btn btn-link text-danger btn-sm ms-2" title="Excluir" onclick="deletarFiliado(${f.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    // Função chamada pelo input 'onkeyup' no HTML
+    // Usa um pequeno 'delay' (debounce) para não chamar o Java a cada letra digitada
+    let timeoutBusca = null;
+    function filtrarFiliados() {
+        const termo = document.getElementById('buscaFiliadoInput').value;
+        
+        clearTimeout(timeoutBusca);
+        timeoutBusca = setTimeout(() => {
+            carregarFiliadosAdmin(termo);
+        }, 500); // Espera 0.5s após parar de digitar para buscar
+    }
+
+    async function deletarFiliado(id) {
+        if(confirm("Tem certeza que deseja excluir este cadastro local?")) {
+            try {
+                const res = await fetch(`/api/filiados/${id}`, { method: 'DELETE' });
+                if(res.ok) {
+                    // Recarrega a lista atual (mantendo filtro se houver)
+                    const termoAtual = document.getElementById('buscaFiliadoInput').value;
+                    carregarFiliadosAdmin(termoAtual);
+                } else {
+                    alert("Erro ao excluir.");
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    }
+	
+	
+	async function carregarStatsFake() {
+	        try {
+	            const res = await fetch('/api/fake-detector/stats');
+	            const data = await res.json();
+	            
+	            document.getElementById('statTotal').innerText = data.total;
+	            document.getElementById('statFakes').innerText = data.fakes;
+	            document.getElementById('statReais').innerText = data.reais;
+	        } catch(e) {
+	            console.error("Erro stats:", e);
+	        }
+	    }
+		
+</script>
+
+</body>
+</html>
