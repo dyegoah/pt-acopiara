@@ -43,32 +43,32 @@ public class ProjetosSecaoController {
 
         return ResponseEntity.ok(dto);
     }
-
+  
     @PostMapping
     @Transactional
     public ResponseEntity<String> salvarSecaoProjetos(@RequestBody ProjetosSecaoDTO dto) {
+        try {
+            SiteConfig config = configRepo.findById(1L).orElse(null);
 
-        // 1. Salva Configuração do Banner
-        SiteConfig config = configRepo.findById(1L).orElse(new SiteConfig());
-        config.setId(1L); 
-        config.setProjectBannerTitle(dto.getBannerTitle());
-        config.setProjectBannerDesc(dto.getBannerDesc());
-        config.setProjectBannerBg(dto.getBannerBg());
-        configRepo.save(config);
+            if (config == null) config = new SiteConfig();
 
-        // 2. Salva Lista de Projetos
-        // Primeiro limpa a tabela antiga
-        projetoRepo.deleteAll();
-        
-        // CORREÇÃO AQUI:
-        if (dto.getProjetos() != null && !dto.getProjetos().isEmpty()) {
-            // Força o ID a ser nulo. Isso obriga o banco a criar novas linhas (INSERT)
-            // ao invés de tentar atualizar linhas que acabamos de apagar (UPDATE).
-            dto.getProjetos().forEach(p -> p.setId(null));
-            
-            projetoRepo.saveAll(dto.getProjetos());
+            config.setProjectBannerTitle(dto.getBannerTitle());
+            config.setProjectBannerDesc(dto.getBannerDesc());
+            config.setProjectBannerBg(dto.getBannerBg());
+            configRepo.save(config);
+
+            projetoRepo.deleteAll();
+
+            if (dto.getProjetos() != null && !dto.getProjetos().isEmpty()) {
+                dto.getProjetos().forEach(p -> p.setId(null));
+                projetoRepo.saveAll(dto.getProjetos());
+            }
+
+            return ResponseEntity.ok("Seção salva com sucesso!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Falha ao salvar: " + e.getMessage());
         }
-
-        return ResponseEntity.ok("Seção salva com sucesso!");
     }
+
 }
