@@ -482,27 +482,36 @@
             salvarOutrosDados(); 
         } 
     }
-    async function salvarOutrosDados() {
-        try {
-            const payload = {
-                bannerTitle: document.getElementById('projectBannerTitle').value,
-                bannerDesc: document.getElementById('projectBannerDesc').value,
-                bannerBg: document.getElementById('projectBannerBg').value,
-                projetos: projectData.projetos
-            };
-			const res = await fetch('/api/projetos-secao', {
-			  method: 'POST',
-			  headers: { 'Content-Type': 'application/json' },
-			  body: JSON.stringify(payload)
-			});
+	async function salvarOutrosDados() {
+	  try {
+	    const payload = {
+	      bannerTitle: document.getElementById('projectBannerTitle').value,
+	      bannerDesc: document.getElementById('projectBannerDesc').value,
+	      bannerBg: document.getElementById('projectBannerBg').value,
+	      projetos: projectData.projetos
+	    };
 
-			const txt = await res.text();
-			if (!res.ok) {
-			  alert(`Erro ao salvar (${res.status}): ${txt}`);
-			  return;
-			}
-			alert("Salvo!");
-			await carregarProjetos();
+	    const res = await fetch('/api/projetos-secao', {
+	      method: 'POST',
+	      headers: { 'Content-Type': 'application/json' },
+	      body: JSON.stringify(payload)
+	    });
+
+	    const txt = await res.text();
+	    if (!res.ok) {
+	      alert(`Erro ao salvar (${res.status}): ${txt}`);
+	      return;
+	    }
+
+	    alert("Salvo!");
+	    await carregarProjetos();
+
+	  } catch (e) {
+	    console.error("Erro salvar projetos:", e);
+	    alert("Falha ao salvar (erro de rede ou JS). Veja o console.");
+	  }
+	}
+
 
 
     // ==========================================
@@ -526,7 +535,7 @@
         
         historyData.forEach((item, index) => {
              if(filter !== 'all' && item.tipo !== filter) return;
-             const imgSrc = item.fotoUrl ? item.fotoUrl : 'https://via.placeholder.com/50';
+             const imgSrc = normalizeImgUrl(item.fotoUrl, 'https://via.placeholder.com/50');
              const itemId = item.id || null;
              tb.innerHTML += `
             <tr>
@@ -609,7 +618,7 @@
         if(!tb) return;
         tb.innerHTML = '';
         noticiasData.forEach((item, index) => {
-            const imgSrc = item.fotoUrl ? item.fotoUrl : 'https://via.placeholder.com/150x100?text=Sem+Foto';
+            const imgSrc = normalizeImgUrl(item.fotoUrl, 'https://via.placeholder.com/150x100?text=Sem+Foto');
             const itemId = item.id || null;
             tb.innerHTML += `
             <tr>
