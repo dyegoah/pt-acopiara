@@ -379,6 +379,30 @@
             carregarFiliadosAdmin() // Vírgula corrigida
         ]);
     });
+	
+	// ==================================================
+	// NORMALIZA URL DE IMAGEM (necessário para Candidatos/Notícias)
+	// ==================================================
+	function normalizeImgUrl(url, placeholderFull) {
+	  const u = (url || "").trim();
+	  if (!u) return placeholderFull;
+
+	  // Já é URL completa
+	  if (/^https?:\/\//i.test(u)) return u;
+
+	  // Casos quebrados comuns (ex.: "50" ou "150x100?text=Sem+Foto")
+	  if (/^\d+$/.test(u) || u.includes("?text=") || u.startsWith("150x") || u.startsWith("50")) {
+	    return placeholderFull;
+	  }
+
+	  // Caminho relativo válido
+	  if (u.startsWith("/")) return u;
+
+	  // Fallback: assume relativo
+	  return "/" + u;
+	}
+
+	
 
     // ==========================================
     // 1. PROJETOS (OBRAS)
