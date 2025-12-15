@@ -30,12 +30,17 @@
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-agenda">Agenda</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-projetos">Projetos/Obras</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-noticias">Notícias</button>
+				
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-filiados">
                     <i class="fas fa-id-card me-2"></i> Cadastro de Filiados
                 </button>
 				<button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#tab-fake-stats">
-								    <i class="fas fa-robot me-2"></i> Estatísticas Fake News
-								</button>
+					 <i class="fas fa-robot me-2"></i> Estatísticas Fake News
+				</button>
+				<button class="nav-link text-start" type="button" data-bs-toggle="modal" data-bs-target="#modalTrocarSenha">
+				    <i class="fas fa-key me-2"></i> Trocar Senha
+				</button>
+
             </div>
             <div class="mt-4 pt-3 border-top border-white-50">
                 <a href="index.html" target="_blank" class="btn btn-light w-100 btn-sm">Ver Site</a>
@@ -310,6 +315,46 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="modalTrocarSenha" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px; overflow:hidden;">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, #cc0000 0%, #8a0000 100%);">
+        <h5 class="modal-title"><i class="fas fa-key me-2"></i>Trocar Senha</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="senhaMsg" class="alert d-none" role="alert"></div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-muted">SENHA ATUAL</label>
+          <input id="currentPassword" type="password" class="form-control" autocomplete="current-password">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-muted">NOVA SENHA</label>
+          <input id="newPassword" type="password" class="form-control" autocomplete="new-password">
+          <div class="form-text">Mínimo recomendado: 8 caracteres.</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-muted">CONFIRMAR NOVA SENHA</label>
+          <input id="confirmNewPassword" type="password" class="form-control" autocomplete="new-password">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" onclick="trocarSenhaAdmin()">
+          <i class="fas fa-check me-2"></i>Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -872,6 +917,65 @@
 	    }
 		
 </script>
+
+<script>
+async function trocarSenhaAdmin() {
+  const msg = document.getElementById('senhaMsg');
+
+  const payload = {
+    currentPassword: document.getElementById('currentPassword').value || '',
+    newPassword: document.getElementById('newPassword').value || '',
+    confirmNewPassword: document.getElementById('confirmNewPassword').value || ''
+  };
+
+  // validação básica front
+  if (!payload.currentPassword || !payload.newPassword || !payload.confirmNewPassword) {
+    msg.className = 'alert alert-warning';
+    msg.textContent = 'Preencha todos os campos.';
+    msg.classList.remove('d-none');
+    return;
+  }
+
+  try {
+    const resp = await fetch('/api/admin/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await resp.text();
+
+    if (!resp.ok) {
+      msg.className = 'alert alert-danger';
+      msg.textContent = text || 'Erro ao trocar senha.';
+      msg.classList.remove('d-none');
+      return;
+    }
+
+    msg.className = 'alert alert-success';
+    msg.textContent = text || 'Senha alterada com sucesso.';
+    msg.classList.remove('d-none');
+
+    // limpa campos
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmNewPassword').value = '';
+
+    // opcional: fecha modal após 1s
+    setTimeout(() => {
+      const modalEl = document.getElementById('modalTrocarSenha');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+    }, 900);
+
+  } catch (e) {
+    msg.className = 'alert alert-danger';
+    msg.textContent = 'Falha de comunicação com o servidor.';
+    msg.classList.remove('d-none');
+  }
+}
+</script>
+
 
 </body>
 </html>
