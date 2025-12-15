@@ -43,29 +43,28 @@ public class ProjetosSecaoController {
 
         return ResponseEntity.ok(dto);
     }
-
+  
     @PostMapping
     @Transactional
     public ResponseEntity<String> salvarSecaoProjetos(@RequestBody ProjetosSecaoDTO dto) {
 
-        // 1. Salva Configuração do Banner
-        SiteConfig config = configRepo.findById(1L).orElse(new SiteConfig());
-        config.setId(1L); 
+        // 1) Salva Configuração do Banner (UPSERT seguro)
+        SiteConfig config = configRepo.findById(1L).orElse(null);
+
+        if (config == null) {
+            config = new SiteConfig(); // NÃO force ID aqui
+        }
+
         config.setProjectBannerTitle(dto.getBannerTitle());
         config.setProjectBannerDesc(dto.getBannerDesc());
         config.setProjectBannerBg(dto.getBannerBg());
         configRepo.save(config);
 
-        // 2. Salva Lista de Projetos
-        // Primeiro limpa a tabela antiga
+        // 2) Salva Lista de Projetos
         projetoRepo.deleteAll();
-        
-        // CORREÇÃO AQUI:
+
         if (dto.getProjetos() != null && !dto.getProjetos().isEmpty()) {
-            // Força o ID a ser nulo. Isso obriga o banco a criar novas linhas (INSERT)
-            // ao invés de tentar atualizar linhas que acabamos de apagar (UPDATE).
             dto.getProjetos().forEach(p -> p.setId(null));
-            
             projetoRepo.saveAll(dto.getProjetos());
         }
 

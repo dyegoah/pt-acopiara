@@ -490,10 +490,20 @@
                 bannerBg: document.getElementById('projectBannerBg').value,
                 projetos: projectData.projetos
             };
-            const res = await fetch('/api/projetos-secao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if(res.ok) { alert("Salvo!"); await carregarProjetos(); } else alert("Erro ao salvar.");
-        } catch (e) { alert("Erro: " + e.message); }
-    }
+			const res = await fetch('/api/projetos-secao', {
+			  method: 'POST',
+			  headers: { 'Content-Type': 'application/json' },
+			  body: JSON.stringify(payload)
+			});
+
+			const txt = await res.text();
+			if (!res.ok) {
+			  alert(`Erro ao salvar (${res.status}): ${txt}`);
+			  return;
+			}
+			alert("Salvo!");
+			await carregarProjetos();
+
 
     // ==========================================
     // 2. CANDIDATOS
